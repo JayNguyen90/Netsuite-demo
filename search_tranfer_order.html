@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Search Transfer Order By Location</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+    integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <style>
+    #btnSearch {
+      margin-left: 10px;
+    }
+
+    .loader {
+      border: 16px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 16px solid #3498db;
+      width: 120px;
+      height: 120px;
+      -webkit-animation: spin 2s linear infinite;
+      /* Safari */
+      animation: spin 2s linear infinite;
+    }
+
+    /* Safari */
+
+    @-webkit-keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+      }
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .navbar {
+      -webkit-box-shadow: 0 8px 6px -6px #999;
+      -moz-box-shadow: 0 8px 6px -6px #999;
+      box-shadow: 0 8px 6px -6px #999;
+
+      /* the rest of your styling */
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <nav class="navbar navbar-expand-md navbar-light fixed-top" style="background-color: #FFFFFF;">
+
+    <button class="navbar-toggler navbar-nav mr-auto" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+      aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <a class="navbar-brand mx-auto" href="#">Theo dõi Transfer Order chưa được hoàn tất tại Store của bạn</a>
+
+    <ul class="nav navbar-nav ml-md--auto">
+
+      <li class="dropdown">
+        <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
+          Welcome
+          <span id="emailLoginID"></span>
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a href="#listEmailStoreManager" class="dropdown-item" data-toggle="modal">DS Email &amp; Store</a>
+          <a href="#" id="lnkLogOut" class="dropdown-item">Log Out</a>
+        </div>
+      </li>
+    </ul>
+
+
+
+  </nav>
+  <div class="container">
+    <h1 style="text-align:center" class="font-weight-bold">Transfer Order Search By Location</h1>
+    <br />
+    <div class="row justify-content-center" style="padding-bottom: 20px;">
+      <div class="col-12 col-md-10 col-lg-8">
+        <form class="card card-sm" method="post" action="#" id="formSearch">
+          <div class="card-body row no-gutters align-items-center">
+            <div class="col-auto">
+              <i class="fas fa-search h4 text-body"></i>
+            </div>
+            <div class="col">
+              <select id="locality-dropdown" class="form-control" placeholder="Search" name="locality">
+              </select>
+            </div>
+            <div>
+              <button class="btn btn-success" type="button" id="btnSearch">Search</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class='loader' style="position: fixed; top: 45%; left: 50%; z-index: 1051;"></div>
+    <div id="display-tableTransferOrder">
+
+    </div>
+  </div>
+  <div class="modal fade" id="listEmailStoreManager" tabindex="-1" role="dialog"
+    aria-labelledby="transferOrderDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>Email &amp; Location mà bạn có thể sử dụng <a
+              href="mailto:emails.3765743.659.c7b7458a5c@emails.na3.netsuite.com">TO Bot</a> để tương tác</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body scroll-table">
+          <table id="tblToDetails" class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Email</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody class="table">
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="transferOrderDetailModal" tabindex="-1" role="dialog"
+    aria-labelledby="transferOrderDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="transferOrderDetailModalLabel">Các mặt hàng trong <span
+              id="subTransferOrderID"></span></h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body scroll-table">
+          <table id="tblTransferOrder" class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Item ID</th>
+                <th>Item Name</th>
+                <th>Image</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody class="table">
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+
+    $("#lnkLogOut").click(function (e) {
+      e.preventDefault();
+      var res = document.cookie;
+      var multiple = res.split(";");
+      for (var i = 0; i < multiple.length; i++) {
+        var key = multiple[i].split("=");
+        document.cookie = key[0] + " =; expires = Thu, 01 Jan 1970 00:00:00 UTC";
+      }
+      document.location.href = document.location.href;
+    });
+
+    $(document).ready(function () {
+      var getHeightElement = $(window).height() - 190;
+      $('.scroll-table').css({ "height": getHeightElement + 'px', "overflow": "auto" });
+
+    });
+
+    function readCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+
+    $(document).ready(function () {
+      var emailLoginID = readCookie("EmailLoginID");
+      $("#emailLoginID").html(emailLoginID);
+
+    });
+
+
+    $(".loader").hide();
+    $(document).ready(function () {
+      $.ajax({
+        type: 'GET',
+        url: thisLink + "&action=get_location",
+        xhrFields: {
+          withCredentials: true
+        },
+        success: function (data) {
+          var dropdown = $('#locality-dropdown');
+          dropdown.empty();
+          // dropdown.append('<option disabled="disabled">Choose Location</option>');
+          // dropdown.prop('selectedIndex', 0);
+          var cookiesEmailLoginID = readCookie("EmailLoginID");
+          // console.log(cookiesEmailLoginID);
+          // $("#emailLoginID").html(cookiesEmailLoginID);
+          $.each(data, function (key, entry) {
+            if (entry.email === cookiesEmailLoginID) {
+              dropdown.append($('<option></option>').attr('value', entry.id).text(entry.name));
+            }
+            else {
+              dropdown.append($('<option></option>').attr('value', entry.id).attr('disabled', true).text(entry.name)).css("color", "red");
+            }
+          });
+        }
+      });
+
+
+    });
+
+    $('#btnSearch').click(function (e) {
+      $(".loader").show();
+      var displayResources = $("#display-tableTransferOrder");
+      displayResources.empty();
+      var selectedIdLocation = $("#locality-dropdown option:selected").val();
+      var selectedLocation = $("#locality-dropdown option:selected").text();
+      var urlRequestGetTransferOrderByLocation = thisLink + '&action=search_transfer_order_by_locations&idLocation=' + selectedIdLocation;
+
+      $.ajax({
+        type: "GET",
+        url: urlRequestGetTransferOrderByLocation,
+        success: function (result) {
+          if (typeof (result) == 'string') {
+            document.location.href = document.location.href;
+            return;
+          }
+          if (result.length == 0) {
+            displayResources.append('<b>' + '<i>Hey, hiện tại không có Transfer Order nào chưa được hoàn tất tại </i>' + selectedLocation + '</b>');
+          }
+          else {
+            var output =
+              "<table class='table table-striped table-bordered'><thead><tr><th>Tranfer Order#</th><th>From</th><th>To</th><th>Date</th><th>Status</th><th>Created By</th><th>View</th></tr></thead><tbody>";
+            for (var i in result) {
+              output +=
+                '<tr>' +
+                '<td>' + result[i].tranferOrderId + '</td>' +
+                '<td>' + result[i].fromLocation + '</td>' +
+                '<td>' + result[i].tolocation + '</td>' +
+                '<td>' + result[i].date + '</td>' +
+                '<td>' + result[i].status + '</td>' +
+                '<td>' + result[i].createdBy + '</td>' +
+                '<td><a href="#transferOrderDetailModal" data-toggle="modal" data-transferorder-id="' + result[i].id + '" data-subtransferorder-id="' + result[i].tranferOrderId + '">Detail</a> </td>' +
+                '</tr>';
+            }
+            output += "</tbody></table>";
+            displayResources.html(output);
+            $("table").addClass("table");
+          }
+          $(".loader").hide();
+        }
+      });
+    });
+
+    $('#transferOrderDetailModal').on('show.bs.modal', function (e) {
+      $(".loader").show();
+      var transferOrderId = $(e.relatedTarget).data('transferorder-id');
+      // console.log(transferOrderId);
+      var subtransferOrderId = $(e.relatedTarget).data('subtransferorder-id');
+      // console.log(subtransferOrderId);
+      document.getElementById("subTransferOrderID").innerHTML = subtransferOrderId;
+      var requestUrlGetSubItem = thisLink + '&action=get_sub_list_of_transfer_order&transferOrderId=' + transferOrderId;
+      $('#transferOrderDetailModal').find('.modal-body .table tbody').empty();
+      $.ajax({
+        type: "GET",
+        url: requestUrlGetSubItem,
+        success: function (result) {
+          console.log("result:",result);
+          // if (typeof (result) == 'string') {
+          //   document.location.href = document.location.href;
+          //   return;
+          // }
+          for (var i = 0; i < result.length; i++) {
+            $('#transferOrderDetailModal').find('.modal-body .table tbody').append('<tr>' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td>' + result[i].itemId+ '</td>' +
+              '<td>' + result[i].itemName + '</td>' +
+              '<td >' + '<a href="' + result[i].originalImage + '"target="_blank"><img src="' + result[i].url + '"></a>'+'</td>' +
+              '<td>' + result[i].status + '</td>' +
+              '</tr>');
+          }
+          $(".loader").hide();
+        }
+      });
+    });
+
+    $('#listEmailStoreManager').on('show.bs.modal', function (e) {
+      $(".loader").show();
+      var requestUrlGetSubItem = thisLink + '&action=get_list_email_store_manager';
+      $('#listEmailStoreManager').find('.modal-body .table tbody').empty();
+      $.ajax({
+        type: "GET",
+        url: requestUrlGetSubItem,
+        success: function (result) {
+          if (typeof (result) == 'string') {
+            document.location.href = document.location.href;
+            return;
+          }
+          for (var i = 0; i < result.length; i++) {
+            $('#listEmailStoreManager').find('.modal-body .table tbody').append('<tr>' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td>' + result[i].email + '</td>' +
+              '<td>' + result[i].location + '</td>' +
+              '</tr>');
+          }
+          $(".loader").hide();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
